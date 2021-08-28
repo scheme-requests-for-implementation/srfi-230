@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 230: Atomic Operations</title>
+    <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body
+      {
+	  counter-reset: section;
+	  font-family: serif;
+      }
+      h2
+      {
+	  counter-reset: subsection;
+      }
+      h2::before
+      {
+	  counter-increment: section;
+	  content: counter(section) " ";
+      }
+      h3
+      {
+	  counter-reset: subsubsection;
+      }
+      h3::before
+      {
+	  counter-increment: subsection;
+	  content: counter(section) "." counter(subsection) " ";
+      }
+      h4::before
+      {
+	  counter-increment: subsubsection;
+	  content: counter(section) "." counter(subsection) "." counter(subsubsection) " ";
+      }
+      span.token
+      {
+          font-family: serif;
+      }
+      span.token::before
+      {
+          content: "⟨";
+      }
+      span.token::after
+      {
+          content: "⟩";
+      }
+      dl.entries dt
+      {
+	  background-color: lightgrey;
+      }
+      dl.entries dd
+      {
+	  margin-left: 0;
+      }
+      dl.entries > dt.condition-type::after
+      {
+	  float: right;
+	  content: "condition type"
+      }
+      dl.entries > dt.procedure::after
+      {
+	  float: right;
+	  content: "procedure"
+      }
+      dl.entries > dt.syntax::after
+      {
+	  float: right;
+	  content: "syntax"
+      }
+      dt.entry > span.type
+      {
+	  float: right;
+      }
+      pre, code
+      {
+	  font-size: smaller;
+      }
+      pre.example
+      {
+	  margin-left: 1em;
+	  margin-right: 1em;
+      }
+      pre.example > span.result
+      {
+	  float: right;
+      }
+      pre.example > span.result::before
+      {
+	  padding-left: 1em;
+	  padding-right: 1em;
+	  content: "⟹"
+      }
+      sup
+      {
+	  display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><a href="https://srfi.schemers.org/"><img class="srfi-logo" src="https://srfi.schemers.org/srfi-logo.svg" alt="SRFI surfboard logo" /></a>230: Atomic Operations</h1>
+
+    <p>by Marc Nieper-Wißkirchen</p>
+
+    <h2 id="status">Status</h2>
+
+    <p>??? the draft/final/withdrawn status of the SRFI, information on how
+      to subscribe to its mailing list, and important dates in its history.
+      The editor will add this section.</p>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>This SRFI defines atomic operations for the Scheme programming language.
+      An <dfn>atomic operation</dfn> is an operation that, even in the presence
+      of multiple threads, is either executed completely or not at all.  Atomic
+      operations can be used to implement mutexes and other synchronization
+      primitives, and they can be used to make concurrent algorithms lock-free.
+      For this, this SRFI defines two data types, <dfn>atomic flags</dfn>
+      and <dfn>atomic boxes</dfn>, whose contents can be queried and mutated
+      atomically.  Moreover, each atomic operation comes with a <dfn>memory
+	order</dfn> that defines the level of synchronization with other threads.</p>
+
+    <h2 id="issues">Issues</h2>
+
+    <p>None at present.</p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>Virtually all modern multi-threaded CPUs support atomic operations.
+      They can often be used to avoid costly locks in concurrent programming.
+      Many general-purpose programming languages like C, C++, or Rust expose a
+      standard set of atomic operations to the programmer.  This SRFI does the
+      same for the Scheme programming language.</p>
+
+    <p>This SRFI is particularly interesting for multi-threaded applications,
+      e.g. those based on SRFI 18 (or any other threading library), but can
+      also be used in general library code to make it thread-safe.</p>
+
+    <h2 id="specification">Specification</h2>
+
+    <p>The procedures and syntax described in this section are exported by
+      the <code>(srfi 230)</code> library in an R<sup>7</sup>RS system and by both the <code>(srfi :230
+	atomic)</code> and <code>(srfi :230)</code> libraries in an R<sup>6</sup>RS system.</p>
+
+    <h3>Entry format</h3>
+
+    <p>The following naming conventions imply type restrictions:</p>
+
+    <dl>
+      <dt><code><var>obj</var></code></dt>
+      <dt><code><var>expected</var></code></dt>
+      <dt><code><var>desired</var></code></dt>
+      <dd>any object</dd>
+      <dt><code><var>fx</var></code></dt>
+      <dd>fixnum</dd>
+      <dt><code><var>memory-order</var></code></dt>
+      <dd>any memory-order</dd>
+      <dt><code><var>atomic-flag</var></code></dt>
+      <dd>atomic flag</dd>
+      <dt><code><var>atomic-box</var></code></dt>
+      <dd>atomic box</dd>
+    </dl>
+
+    <h3>Memory orders</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(memory-order <span class="token">memory-order symbol</span>)</code><span class="type">syntax</span></dt>
+      <dd>
+	<p>It is a syntax violation if <code><span class="token">memory-order
+	      symbol</span></code> is not a symbol whose name is one of
+	  <code>relaxed</code>, <code>acquire</code>, <code>release</code>, <code>acquire-release</code>,
+	  and <code>sequentially-consistent</code>.  The result is the
+	  corresponding symbol, and specifies the associated memory order.</p>
+	<p><i>Note:</i>
+	  Only the name of <code><span class="token">memory-order
+	      symbol</span></code> is significant.</p>
+      </dd>
+      <dt class="entry"><code>(memory-order? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns <code>#t</code> if the argument is a valid memory-order
+	  symbol, and returns <code>#f</code> otherwise.</p>
+      </dd>
+    </dl>
+
+    <h3>Atomic flags</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-flag)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-flag? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns <code>#t</code> if <code><var>obj</var></code> is an atomic
+	flag, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-flag-test-and-set! <var>atomic-flag</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-flag-test-and-set! <var>atomic-flag</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-flag-clear! <var>atomic-flag</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-flag-clear! <var>atomic-flag</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+    </dl>
+
+    <h3>Atomic boxes</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-box <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns a newly allocated atomic box, whose initial content
+	is <code><var>obj</var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns <code>#t</code> if <code><var>obj</var></code> is an atomic
+	box, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-ref <var>atomic-box</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>
+
+	</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-fx+/fetch! <var>atomic-box</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-fx+/fetch! <var>atomic-box</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-fx-/fetch! <var>atomic-box</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-fx-/fetch! <var>atomic-box</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-fxand/fetch! <var>atomic-box</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-fxand/fetch! <var>atomic-box</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-fxior/fetch! <var>atomic-box</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-fxior/fetch! <var>atomic-box</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-fxxor/fetch! <var>atomic-box</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-fxxor/fetch! <var>atomic-box</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+    </dl>
+
+    <h3>Memory synchronization</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(atomic-fence <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p></p>
+      </dd>
+    </dl>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>For Schemes that do not support multiple threads, an implementation of
+      this SRFI is trivial as all operations are automatically trivial.  In
+      particular, atomic flags and atomic boxes could be represented by SRFI
+      111 boxes.</p>
+
+    <p>For Schemes that support multiple threads, an implementation based on
+      SRFI 18 or SRFI 226 mutexes is possible.</p>
+
+    <p>The primitives defined in this SRFI are all supported by modern
+      multi-threaded CPUs and are also implemented in the C and the C++
+      programming languages.  Thus, Scheme systems with a native compiler or
+      Scheme systems with a virtual machine based on C or C++ can easily
+      implement this SRFI efficiently.</p>
+
+    <p>The <a href="???">sample implementation</a> is an R<sup>7</sup>RS
+      implementation based on SRFI 18.</p>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>This SRFI was inspired by the C11 atomic operations library.</p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2021 Marc Nieper-Wißkirchen.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
