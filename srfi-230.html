@@ -443,7 +443,10 @@
 	<p>Establishes memory synchronization ordering of non-atomic and
 	  relaxed atomic accesses, as instructed
 	  by <code><var>memory-order</var></code>, without an associated atomic
-	  operation.</p>
+	  operation.  Returns unspecified values.</p>
+	<p><i>Note:</i> As this procedure does not store a value into a
+	  previous allocated location, its name does not end in
+	  “<code>!</code>”.</p>
       </dd>
     </dl>
 
