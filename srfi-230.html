@@ -163,7 +163,66 @@
       <dd>atomic box</dd>
     </dl>
 
+    <h3>Atomicity</h3>
+
+    <p>Unless said otherwise, all procedures prefixed with <code>atomic-</code>
+      are executed atomically.</p>
+
+    <p><i>Note:</i> In a <i>safe</i> top-level program (in the sense of
+      R<sup>6</sup>RS), all reads and writes to the store are necessarily
+      atomic.  In particular, a library implementing SRFI 18 is not necessarily
+      safe.</p>
+
     <h3>Memory orders</h3>
+
+    <p>The memory order specifies how accesses, including regular, non-atomic
+      memory accesses, are to be ordered around an atomic operation. When
+      multiple threads simultaneously read and write to several variables, one
+      thread can observe the values change in an order different from the order
+      another thread wrote them. Indeed, the apparent order of changes can even
+      differ among multiple reader threads.
+
+    <p>The default behavior of all atomic operations defined in this library
+      provides for <i>sequentially consistent ordering</i> (see below).  That
+      default can hurt performance, but the library's atomic operations can be
+      given an additional <code><var>memory-order</var></code> argument to
+      specify the exact constraints, beyond atomicity, that the implementation
+      must enforce for that operation.</p>
+
+    <p>Atomic operations can be given the following memory orders to modify the
+      default behavior:</p>
+
+    <dl>
+      <dt><code>relaxed</code></dt>
+      <dd><i>Relaxed operation</i>: there are no synchronization or ordering
+	constraints imposed on other reads or writes, only this operation's
+	atomicity is guaranteed.</dd>
+      <dt><code>acquire</code></dt>
+      <dd>A read operation on the store with this memory order performs the
+	<i>acquire operation</i> on the affected memory location: no reads or
+	writes in the current thread can be reordered before this read.  All
+	writes in other threads that <i>release</i> the same atomic variable
+	are visible in the current thread.</dd>
+      <dt><code>release</code></dt>
+      <dd>A write operation on the store with this memory order performs
+	the <i>release operation</i>: no reads or writes in the current thread
+	can be reordered after this write.  All writes in the current thread
+	are visible in other threads that <i>acquire</i> the same atomic
+	variable.</dd>
+      <dt><code>acquire-release</code></dt>
+      <dd>A read-modify-write operation on the store with this memory order is
+	both an <i>acquire operation</i> and a <i>release operation</i>.  No
+	reads or writes on the store in the current thread can be reordered before or
+	after this write.  All writes in other threads that release the same
+	atomic variable are visible before the modification and the modification
+	is visible in other threads that acquire the same atomic variable.</dd>
+      <dt><code>sequentially-consistent</code></dt>
+      <dd>A read operation on the store with this memory order performs an
+      <i>acquire operation</i>, a write performs a <i>release operation</i>,
+      and read-modify-write performs both an <i>acquire operation</i> and
+      a <i>release operation</i>, plus a single total order exists in which all
+      threads observe all modifications in the same order.</dd>
+    </dl>
 
     <dl class="entries">
       <dt class="entry"><code>(memory-order <span class="token">memory-order symbol</span>)</code><span class="type">syntax</span></dt>
@@ -186,10 +245,15 @@
 
     <h3>Atomic flags</h3>
 
+    <p>An <dfn>atomic flag</dfn> is tagged with a location that can be either
+      in the <dfn>clear</dfn> or in the <dfn>set</dfn> state and which can be
+      changed and tested automically.</p>
+
     <dl class="entries">
       <dt class="entry"><code>(make-atomic-flag)</code><span class="type">procedure</span></dt>
       <dd>
-	<p></p>
+	<p>Returns a newly allocated atomic flag, which is initially in the
+	clear state.</p>
       </dd>
       <dt class="entry"><code>(atomic-flag? <var>obj</var>)</code><span class="type">procedure</span></dt>
       <dd>
@@ -199,16 +263,23 @@
       <dt class="entry"><code>(atomic-flag-test-and-set! <var>atomic-flag</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-flag-test-and-set! <var>atomic-flag</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p></p>
+	<p>Returns <code>#t</code> if the state
+	  of <code><var>atomic-flag</var></code> is set, and
+	  returns <code>#f</code> otherwise.  Changes the state
+	  of <code><var>atomic-flag</var></code> to set.</p>
       </dd>
       <dt class="entry"><code>(atomic-flag-clear! <var>atomic-flag</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-flag-clear! <var>atomic-flag</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p></p>
+	<p>Changes the state of <code><var>atomic-flag</var></code> to clear.</p>
       </dd>
     </dl>
 
     <h3>Atomic boxes</h3>
+
+    <p>An <dfn>atomic box</dfn> is tagged with a location that can hold any
+      object, the <dfn>content</dfn> of the atomic box, and which can be
+      changed and tested atomically.</p>
 
     <dl class="entries">
       <dt class="entry"><code>(make-atomic-box <var>obj</var>)</code><span class="type">procedure</span></dt>
@@ -301,6 +372,10 @@
     <h2 id="acknowledgements">Acknowledgements</h2>
 
     <p>This SRFI was inspired by the C11 atomic operations library.</p>
+
+    <p>It uses language from
+    the <a href="https://en.cppreference.com/w/c"><cite>C
+    reference</cite></a> wiki.</p>
 
     <h2 id="copyright">Copyright</h2>
     <p>&copy; 2021 Marc Nieper-Wißkirchen.</p>
