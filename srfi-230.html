@@ -156,7 +156,7 @@
       <dt><code><var>fx</var></code></dt>
       <dd>fixnum</dd>
       <dt><code><var>memory-order</var></code></dt>
-      <dd>any memory-order</dd>
+      <dd>any memory order</dd>
       <dt><code><var>atomic-flag</var></code></dt>
       <dd>atomic flag</dd>
       <dt><code><var>atomic-box</var></code></dt>
@@ -166,7 +166,7 @@
     <h3>Atomicity</h3>
 
     <p>Unless said otherwise, all procedures prefixed with <code>atomic-</code>
-      are executed atomically.</p>
+      in the library are executed atomically.</p>
 
     <p><i>Note:</i> In a <i>safe</i> top-level program (in the sense of
       R<sup>6</sup>RS), all reads and writes to the store are necessarily
@@ -295,25 +295,28 @@
       <dt class="entry"><code>(atomic-box-ref <var>atomic-box</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p>
-
-	</p>
+	<p>Returns the content of <code><var>atomic-box</var></code>.</p>
       </dd>
       <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p></p>
+	<p>Sets the content of <code><var>atomic-box</var></code>
+	to <code><var>obj</var></code> and returns unspecified values.</p>
       </dd>
       <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p></p>
+	<p>Sets of the content of <code><var>atomic-box</var></code> and
+	returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p></p>
-      </dd>
+	<p>Operationally equivalent to the following executed atomically:</p>
+	<pre class="code">(let ((actual (atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)))
+  (when (eq? actual expected)
+    (atomic-box-set! <var>atomic-box</var> <var>desired</var> <var>memory-order</var>))
+  <var>actual</var>)</pre></dd>
       <dt class="entry"><code>(atomic-box-fx+/fetch! <var>atomic-box</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-fx+/fetch! <var>atomic-box</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
