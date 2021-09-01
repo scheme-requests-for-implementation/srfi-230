@@ -202,7 +202,7 @@
 
     <h3>Atomicity</h3>
 
-    <p>Unless said otherwise, all procedures prefixed with <code>atomic-</code>
+    <p>Unless otherwise specified, all procedures prefixed with <code>atomic-</code>
       in the library are executed atomically.</p>
 
     <p><i>Note:</i> In a <i>safe</i> top-level program (in the sense of
@@ -232,7 +232,7 @@
     <dl>
       <dt><code>relaxed</code></dt>
       <dd><i>Relaxed operation</i>: there are no synchronization or ordering
-	constraints imposed on other reads or writes, only this operation's
+	constraints imposed on other reads or writes.  Only this operation's
 	atomicity is guaranteed.</dd>
       <dt><code>acquire</code></dt>
       <dd>A read operation on the store with this memory order performs the
@@ -283,7 +283,7 @@
     <h3>Atomic flags</h3>
 
     <p>An <dfn>atomic flag</dfn> is tagged with a location that can be either
-      in the <dfn>clear</dfn> or in the <dfn>set</dfn> state and which can be
+      in the <dfn>clear</dfn> state or in the <dfn>set</dfn> state and which can be
       changed and tested automically.</p>
 
     <dl class="entries">
@@ -349,7 +349,7 @@
       <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p>Operationally equivalent to the following executed atomically:</p>
+	<p>Operationally equivalent to the following, executed atomically:</p>
 	<pre class="code">(let ((actual (atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)))
   (when (eq? actual expected)
     (atomic-box-set! <var>atomic-box</var> <var>desired</var> <var>memory-order</var>))
@@ -393,7 +393,7 @@
       <dt class="entry"><code>(atomic-fxbox-compare-and-swap! <var>atomic-fxbox</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-compare-and-swap! <var>atomic-fxbox</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p>Operationally equivalent to the following executed atomically:</p>
+	<p>Operationally equivalent to the following, executed atomically:</p>
 	<pre class="code">(let ((actual (atomic-fxbox-ref <var>atomic-fxbox</var> <var>memory-order</var>)))
   (when (fx=? actual expected)
     (atomic-fxbox-set! <var>atomic-fxbox</var> <var>desired</var> <var>memory-order</var>))
@@ -402,36 +402,36 @@
       <dt class="entry"><code>(atomic-fxbox+/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the sum of
-	  the previous content, and <code><var>fx</var></code> and returns the
+	  the previous content and <code><var>fx</var></code>, and returns the
 	  previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  difference of the previous content, and <code><var>fx</var></code>
+	  difference of the previous content and <code><var>fx</var></code>,
 	  and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-and/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-and/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  bitwise “and” of the previous content, and <code><var>fx</var></code>
+	  bitwise “and” of the previous content and <code><var>fx</var></code>,
 	  and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-ior/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-ior/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  bitwise “inclusive or” of the previous content,
-	  and <code><var>fx</var></code> and returns the previous content.</p>
+	  bitwise “inclusive or” of the previous content
+	  and <code><var>fx</var></code>, and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-xor/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-xor/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  bitwise “exclusive or” of the previous content,
-	  and <code><var>fx</var></code> and returns the previous content.</p>
+	  bitwise “exclusive or” of the previous content
+	  and <code><var>fx</var></code>, and returns the previous content.</p>
       </dd>
     </dl>
 
