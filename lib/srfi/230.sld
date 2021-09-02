@@ -82,7 +82,7 @@
       (and (memq
 	    obj
 	    '(relaxed acquire release acquire-release sequentially-consistent))
-	   #f))
+	   #t))
 
     ;; Atomic flags
 
@@ -194,3 +194,7 @@
 
     (define (atomic-fence . o)
       (lock-guard (if #f #f)))))
+
+;; Local Variables:
+;; mode: scheme
+;; End:
