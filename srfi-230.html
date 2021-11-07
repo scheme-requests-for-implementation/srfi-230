@@ -204,6 +204,8 @@
       <dd>atomic box</dd>
       <dt><code><var>atomic-fxbox</var></code></dt>
       <dd>atomic fixnum box</dd>
+      <dt><code><var>atomic-pair</var></code></dt>
+      <dd>atomic pair</dd>
     </dl>
 
     <h3>Atomicity</h3>
@@ -359,7 +361,7 @@
 	<pre class="code">(let ((actual (atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)))
   (when (eq? actual expected)
     (atomic-box-set! <var>atomic-box</var> <var>desired</var> <var>memory-order</var>))
-  <var>actual</var>)</pre></dd>
+  actual)</pre></dd>
     </dl>
 
     <h3>Atomic fixnum boxes</h3>
@@ -403,7 +405,7 @@
 	<pre class="code">(let ((actual (atomic-fxbox-ref <var>atomic-fxbox</var> <var>memory-order</var>)))
   (when (fx=? actual expected)
     (atomic-fxbox-set! <var>atomic-fxbox</var> <var>desired</var> <var>memory-order</var>))
-  <var>actual</var>)</pre></dd>
+  actual)</pre></dd>
       <dt class="entry"><code>(atomic-fxbox+/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox+/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
@@ -439,6 +441,59 @@
 	  bitwise “exclusive or” of the previous content
 	  and <code><var>fx</var></code>, and returns the previous content.</p>
       </dd>
+    </dl>
+
+    <h3>Atomic pairs</h3>
+
+    <p>An <dfn>atomic pair</dfn> is tagged with two locations that can hold
+      a pair of Scheme objects, the <dfn>contents</dfn> of the atomic pair, and which can be
+      changed and tested atomically.</p>
+
+    <p>Atomic pairs can be used to solve the
+      so-called <a href="https://en.wikipedia.org/wiki/ABA_problem">ABA
+      problem</a>, for example.</p>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-pair <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dd>
+        <p>Returns a newly allocated atomic pair, whose initial
+        contents are <code><var>obj<sub>1</sub></var></code>
+        and <code><var>obj<sub>2</sub></var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns <code>#t</code> if <code><var>obj</var></code> is
+	  an atomic pair, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair-ref <var>atomic-pair</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-ref <var>atomic-pair</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns the contents of <code><var>atomic-pair</var></code> as two values.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair-set! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-set! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Sets the content of <code><var>atomic-pair</var></code>
+	  to <code><var>obj<sub>1</sub></var></code>
+	  and <code><var>obj<sub>2</sub></var></code> and returns
+	  unspecified values.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair-swap! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-swap! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Sets the content of <code><var>atomic-pair</var></code>
+	  to <code><var>obj<sub>1</sub></var></code>
+	  and <code><var>obj<sub>2</sub></var></code> and returns the
+	  previous contents as two values.
+      </dd>
+      <dt class="entry"><code>(atomic-pair-compare-and-swap! <var>atomic-pair</var> <var>expected<sub>1</sub></var> <var>expected<sub>2</sub></var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-compare-and-swap! <var>atomic-pair</var> <var>expected<sub>1</sub></var> <var>expected<sub>2</sub></var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Operationally equivalent to the following, executed atomically:</p>
+	<pre class="code">(let-values (((actual1 actual2) (atomic-pair-ref <var>atomic-pair</var> <var>memory-order</var>)))
+  (when (and (eq? actual1 <var>expected<sub>1</sub></var>) (eq? actual2 <var>expected<sub>2</sub></var>))
+    (atomic-pair-set! <var>atomic-pair</var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var> <var>memory-order</var>))
+  (values actual1 actual2))</pre></dd>
     </dl>
 
     <h3>Memory synchronization</h3>
