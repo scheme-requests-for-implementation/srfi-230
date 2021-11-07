@@ -44,6 +44,12 @@
 	  atomic-fxbox-and/fetch!
 	  atomic-fxbox-ior/fetch!
 	  atomic-fxbox-xor/fetch!
+	  make-atomic-pair
+	  atomic-pair?
+	  atomic-pair-ref
+	  atomic-pair-set!
+	  atomic-pair-swap!
+	  atomic-pair-compare-and-swap!
 	  atomic-fence)
   (import (scheme base)
 	  (scheme case-lambda)
@@ -189,6 +195,46 @@
        (let ((prev (atomic-fxbox-content box)))
 	 (atomic-fxbox-set-content! box (fxxor n prev))
 	 prev)))
+
+    ;; Atomic pairs
+
+    (define-record-type atomic-pair
+      (make-atomic-pair car cdr)
+      atomic-pair?
+      (car atomic-pair-car atomic-pair-set-car!)
+      (cdr atomic-pair-cdr atomic-pair-set-cdr!))
+
+    (define (atomic-pair-ref pair . o)
+      (lock-guard
+       (values
+	(atomic-pair-car pair)
+	(atomic-pair-cdr pair))))
+    
+    (define (atomic-pair-set! pair car cdr . o)
+      (lock-guard
+       (atomic-pair-set-car! pair car)
+       (atomic-pair-set-cdr! pair cdr)))
+
+    (define (atomic-pair-swap! pair car cdr . o)
+      (lock-guard
+       (let ((prev-car (atomic-pair-car pair))
+	     (prev-cdr (atomic-pair-cdr pair)))
+	 (atomic-pair-set-car! pair car)
+	 (atomic-pair-set-cdr! pair cdr)
+	 (values prev-car prev-cdr))))
+
+    (define (atomic-pair-compare-and-swap! pair
+					   expected-car expected-cdr
+					   desired-car desired-cdr
+					   . o)
+      (lock-guard
+       (let ((actual-car (atomic-pair-car pair))
+	     (actual-cdr (atomic-pair-cdr pair)))
+	 (when (and (eq? expected-car actual-car)
+		    (eq? expected-cdr actual-cdr))
+	   (atomic-pair-set-car! pair desired-car)
+	   (atomic-pair-set-cdr! pair desired-cdr))
+	 (values actual-car actual-cdr))))
 
     ;; Memory synchronization
 
