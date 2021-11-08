@@ -209,7 +209,7 @@
        (values
 	(atomic-pair-car pair)
 	(atomic-pair-cdr pair))))
-    
+
     (define (atomic-pair-set! pair car cdr . o)
       (lock-guard
        (atomic-pair-set-car! pair car)
