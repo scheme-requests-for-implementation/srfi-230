@@ -8,7 +8,9 @@ keywords: [[https://srfi.schemers.org/?keywords=concurrency][Concurrency]]
 
 This repository hosts [[https://srfi.schemers.org/srfi-230/][SRFI 230]]: Atomic Operations, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
-This SRFI is in /draft/ status.
+This SRFI is in /final/ status.
+
+See also [[https://srfi.schemers.org/srfi-18/][SRFI 18: Multithreading support]] and [[https://srfi.schemers.org/srfi-226/][SRFI 226: Control Features]].
 
 The full documentation for this SRFI can be found in the [[https://srfi.schemers.org/srfi-230/srfi-230.html][SRFI Document]].
 
