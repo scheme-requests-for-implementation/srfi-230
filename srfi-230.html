@@ -225,7 +225,7 @@
       memory accesses, are to be ordered around an atomic operation. When
       multiple threads simultaneously read and write to several variables, one
       thread can observe the values change in an order different from the order
-      another thread wrote them. Indeed, the apparent order of changes can even
+      in which another thread wrote them. Indeed, the apparent order of changes can even
       differ among multiple reader threads.
 
     <p>The default behavior of all atomic operations defined in this library
@@ -330,7 +330,7 @@
     <dl class="entries">
       <dt class="entry"><code>(make-atomic-box <var>obj</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p>Returns a newly allocated atomic box, whose initial content
+	<p>Returns a newly allocated atomic box whose initial content
 	is <code><var>obj</var></code>.</p>
       </dd>
       <dt class="entry"><code>(atomic-box? <var>obj</var>)</code><span class="type">procedure</span></dt>
@@ -347,13 +347,13 @@
       <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-box</var></code>
-	to <code><var>obj</var></code> and returns unspecified values.</p>
+	to <code><var>obj</var></code>, and returns unspecified values.</p>
       </dd>
       <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets of the content of <code><var>atomic-box</var></code>
-	to <code><var>obj</var></code> and returns the previous content.</p>
+	to <code><var>obj</var></code>, and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
@@ -368,13 +368,13 @@
     <h3>Atomic fixnum boxes</h3>
 
     <p>An <dfn>atomic fixnum box</dfn> is tagged with a location that can hold
-      a fixnum, the <dfn>content</dfn> of the atomic fixnum box, and which can be
+      a fixnum, the <dfn>content</dfn> of the atomic fixnum box, which can be
       changed and tested atomically.</p>
 
     <dl class="entries">
       <dt class="entry"><code>(make-atomic-fxbox <var>obj</var>)</code><span class="type">procedure</span></dt>
       <dd>
-	<p>Returns a newly allocated atomic fixnum box, whose initial content
+	<p>Returns a newly allocated atomic fixnum box whose initial content
 	is <code><var>obj</var></code>.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox? <var>obj</var>)</code><span class="type">procedure</span></dt>
@@ -391,13 +391,13 @@
       <dt class="entry"><code>(atomic-fxbox-set! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code>
-	to <code><var>fx</var></code> and returns unspecified values.</p>
+	to <code><var>fx</var></code>, and returns unspecified values.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-swap! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-swap! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets of the content of <code><var>atomic-fxbox</var></code>
-	to <code><var>fx</var></code> and returns the previous content.</p>
+	to <code><var>fx</var></code>, and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-compare-and-swap! <var>atomic-fxbox</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-compare-and-swap! <var>atomic-fxbox</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
@@ -425,21 +425,21 @@
       <dt class="entry"><code>(atomic-fxbox-and/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  bitwise “and” of the previous content and <code><var>fx</var></code>,
+	  bitwise <em>and</em> of the previous content and <code><var>fx</var></code>,
 	  and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-ior/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-ior/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  bitwise “inclusive or” of the previous content
+	  bitwise <em>inclusive or</em> of the previous content
 	  and <code><var>fx</var></code>, and returns the previous content.</p>
       </dd>
       <dt class="entry"><code>(atomic-fxbox-xor/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
       <dt class="entry"><code>(atomic-fxbox-xor/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
       <dd>
 	<p>Sets the content of <code><var>atomic-fxbox</var></code> to the
-	  bitwise “exclusive or” of the previous content
+	  bitwise <em>exclusive or</em> of the previous content
 	  and <code><var>fx</var></code>, and returns the previous content.</p>
       </dd>
     </dl>
@@ -457,7 +457,7 @@
     <dl class="entries">
       <dt class="entry"><code>(make-atomic-pair <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
       <dd>
-        <p>Returns a newly allocated atomic pair, whose initial
+        <p>Returns a newly allocated atomic pair whose initial
         contents are <code><var>obj<sub>1</sub></var></code>
         and <code><var>obj<sub>2</sub></var></code>.</p>
       </dd>
@@ -476,7 +476,7 @@
       <dd>
 	<p>Sets the content of <code><var>atomic-pair</var></code>
 	  to <code><var>obj<sub>1</sub></var></code>
-	  and <code><var>obj<sub>2</sub></var></code> and returns
+	  and <code><var>obj<sub>2</sub></var></code>, and returns
 	  unspecified values.</p>
       </dd>
       <dt class="entry"><code>(atomic-pair-swap! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
@@ -484,7 +484,7 @@
       <dd>
 	<p>Sets the content of <code><var>atomic-pair</var></code>
 	  to <code><var>obj<sub>1</sub></var></code>
-	  and <code><var>obj<sub>2</sub></var></code> and returns the
+	  and <code><var>obj<sub>2</sub></var></code>, and returns the
 	  previous contents as two values.
       </dd>
       <dt class="entry"><code>(atomic-pair-compare-and-swap! <var>atomic-pair</var> <var>expected<sub>1</sub></var> <var>expected<sub>2</sub></var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
