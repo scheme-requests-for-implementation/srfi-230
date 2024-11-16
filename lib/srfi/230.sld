@@ -169,31 +169,31 @@
     (define (atomic-fxbox+/fetch! box n . o)
       (lock-guard
        (let ((prev (atomic-fxbox-content box)))
-	 (atomic-fxbox-set-content! box (fx+ n prev))
+	 (atomic-fxbox-set-content! box (fx+ prev n))
 	 prev)))
 
     (define (atomic-fxbox-/fetch! box n . o)
       (lock-guard
        (let ((prev (atomic-fxbox-content box)))
-	 (atomic-fxbox-set-content! box (fx- n prev))
+	 (atomic-fxbox-set-content! box (fx- prev n))
 	 prev)))
 
     (define (atomic-fxbox-and/fetch! box n . o)
       (lock-guard
        (let ((prev (atomic-fxbox-content box)))
-	 (atomic-fxbox-set-content! box (fxand n prev))
+	 (atomic-fxbox-set-content! box (fxand prev n))
 	 prev)))
 
     (define (atomic-fxbox-ior/fetch! box n . o)
       (lock-guard
        (let ((prev (atomic-fxbox-content box)))
-	 (atomic-fxbox-set-content! box (fxior n prev))
+	 (atomic-fxbox-set-content! box (fxior prev n))
 	 prev)))
 
     (define (atomic-fxbox-xor/fetch! box n . o)
       (lock-guard
        (let ((prev (atomic-fxbox-content box)))
-	 (atomic-fxbox-set-content! box (fxxor n prev))
+	 (atomic-fxbox-set-content! box (fxxor prev n))
 	 prev)))
 
     ;; Atomic pairs
